@@ -14,6 +14,7 @@
 
 var game = new Phaser.Game(800, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update });
 
+
 function preload() {
     //пуля
     game.load.image('bullet', 'assets/invaders/bullet.png');
@@ -55,7 +56,7 @@ function create() {
     // добовляем им физику
     bullets.physicsBodyType = Phaser.Physics.ARCADE;
 
-    // добовляем большое количество одинаковых объектов
+    // добовляем группу одинаковых спрайтов
 
     bullets.createMultiple(30, 'bullet');
 
@@ -77,8 +78,7 @@ function create() {
     // добовляем физику игроку
     game.physics.enable(player, Phaser.Physics.ARCADE);
 
-    //  добовляем группу врагов
-    aliens = game.add.group();
+
 
 
 /*КЛАВИАТУРА*/
@@ -122,19 +122,26 @@ function update() {
 
 /*ВЫСТРЕЛ ПУЛИ, ОБРАБОТКА ОГНЯ ИЗ ПУШКИ*/
 function fireBullet () {
-
-    //  To avoid them being allowed to fire too fast we set a time limit
-    if (game.time.now > bulletTime)
+    
+    //console.log(game.time.now);
+    // устанавливаем лимит времени между пулями (что бы не пускать их всех сразу)
+    if (game.time.now > bulletTime) // если внутренней время больше (начального времени пули) то
     {
-        //  Grab the first bullet we can from the pool
-        bullet = bullets.getFirstExists(false);
+        //  берем одну пулю из большого количества пуль
+        bullet = bullets.getFirstExists(false);// получаем из множества объектов один (false - находит первый не 
+            // существующий элимент)
 
-        if (bullet)
+        if (bullet)// если мы получили одну пулю
         {
-            //  And fire it
-            bullet.reset(player.x, player.y + 8);
+            //  то стреляем
+            // перемещаем пулю отностильно координат игрока 
+            bullet.reset(player.x, player.y);
+            // задаем скорость пули для его перемищения в нужном нам направление
+
             bullet.body.velocity.y = -400;
-            bulletTime = game.time.now + 200;
+
+            // доблвядем к времени пули время игры
+            bulletTime = game.time.now + 200; // тут мы определяем с каким промежудком времени будет отправлена пуля
         }
     }
 
