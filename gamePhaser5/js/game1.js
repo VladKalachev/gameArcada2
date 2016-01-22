@@ -8,15 +8,16 @@ GameStates.Game = {
 
   /*метод добовляет мир в игру*/
   initWorld: function() {
+
     
-    
+    this.live = 100;  
     /*ИГРОВЫЕ КОНСТАНТЫ*/
     this.evels;
     this.score = 0;
     // переменная хранения счетчика
     this.scoreText;
     this.platforms;
-    this.live = 100;
+    
     this.liveText;
     // переменные уровня
     this.map;
@@ -30,9 +31,18 @@ GameStates.Game = {
     //здесь храниться начальное положение игрока
     this.facing = 'right';
 
+    // жизни
+
+    this.lives;
+
+    this.spaceKey;
+    
+
    
 
     this.bullets;
+
+    this.pausa;
 
     
 
@@ -90,11 +100,20 @@ GameStates.Game = {
     this.cursors = this.input.keyboard.createCursorKeys();
     this.fireButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
+
+    // добовялем кнопку
+    this.spaceKey = this.input.keyboard.addKey(Phaser.Keyboard.ENTER);
+
+    // привязываем отдельной функцией к ней собитие
+    this.spaceKey.onDown.add(this.togglePause, this);
+
+
+
   },
 
 
 
-  /*ИГРОК*/
+/*ИГРОК*/
 
   addPlayer: function () {
 
@@ -146,7 +165,7 @@ GameStates.Game = {
     this.bullets.setAll('anchor.y', 1);
 
 
-/*Счетчик звездочик*/
+/*СЧЕТЧИК ЗВЕЗДОЧИК*/
 
   this.scoreText = this.add.text(10,20, "Звездочки: 0", { fontSize: '32px', fill: '#fff' });
 
@@ -155,11 +174,17 @@ GameStates.Game = {
   this.scoreText.fixedToCamera = true;
 
 
+/*СЧЕТЧИК ЖЫЗНЕЙ*/
+
+  this.lives = this.add.text(600,20, "Жизни: 100", { fontSize: '32px', fill: '#fff' });
+
+  this.lives.fixedToCamera = true;
 
 },
 
 
 /*ВРАГИ*/
+
   addEvil: function () {
 
      //this.evel = this.add.group();
@@ -171,6 +196,22 @@ GameStates.Game = {
      this.evels = this.add.sprite(570, 350, 'mario');
 
      this.physics.arcade.enable(this.evels, Phaser.Physics.ARCADE);
+
+     this.evels.anchor.setTo(0.5, 0);
+
+     this.evels.scale.x = -1;
+    
+      this.evels.enableBody = true;
+      this.evels.body.gravity.y = 300;
+
+
+      // запрещает врагу передвигаться при столкновение!
+     this.evels.body.immovable = true;
+
+     //изменяем зону коллизии
+
+      //this.evels.body.setSize(30, 10, 0, 0);
+
 
 
     /*//  добовляем им вектор гравитации
@@ -229,10 +270,32 @@ addApt: function () {
 
 },
 
+/*СОБЫТИЯ КНОПОК*/
 
+/*ENTER*/
 
-/*События столкновения*/
+togglePause: function()  {
+    
 
+    // переключатель состояний паузы
+     this.game.paused = (this.game.paused) ? false : true;
+    //this.game.paused = (this.game.paused) ? false : true/*this.pausa = this.add.text(100,100, "PAUSED", { fontSize: '32px', fill: '#fff' })*/;
+    //console.log(this.game.paused);
+
+    if (this.game.paused) {
+      
+      console.log("Пауза");
+
+    } else {
+      
+     console.log("Не пауза");
+
+      //this.pausa = this.add.text(100,100, "PAUSED", { fontSize: '32px', fill: '#fff' });
+    };
+
+},
+
+/*СТОЛКНОВЕНИЯ*/
 
 
 /*проверяем столкновение игрока и стены*/
@@ -243,7 +306,8 @@ collisianPlayLayer: function () {
 
 /*столкновение игрока со звездочкой*/
 collisionPlayStar: function () {
-  this.game.physics.arcade.collide(this.player, this.stars, this.ballCollidesWithBlock, null, this);
+  this.game.physics.arcade.collide(this.player, this.stars, this.ballCollidesWithBlock, null, this); // не забывай добовлять последние два параметра для коррктного
+  // парсинга чисел!!!
 },
 
 
@@ -260,7 +324,68 @@ collisianFaerbolLayer: function () {
 },
 
 
+/*столкновение звездочки и карты*/
+
+collisianStarLivel: function () {
+  this.game.physics.arcade.collide(this.stars, this.layer);
+},
+
+
+
+/*столкновение аптечки и карты*/
+collisianAptLivel: function () {
+  this.game.physics.arcade.collide(this.aptec, this.layer, this.AptCollisLivel);
+},
+
+
+
+/*столкновение врага и уровня*/
+collisianEvilLivel: function () {
+  this.game.physics.arcade.collide(this.evels, this.layer);
+},
+
+/*событие врага и фаербола*/
+
+collisianEvilFaerbol: function () {
+  this.game.physics.arcade.collide(this.evels, this.bullets, this.EvilCollisFaerb);
+},
+
+/*столкновение игрока с врагом*/
+
+collisianEvilPlayer: function () {
+  this.game.physics.arcade.collide(this.evels, this.player, this.EvilCollisPlayer,null, this);
+
+},
+
+
+
 /*ОБРАБОТЧИКИ СОБЫТИЙ*/
+
+
+/*обработчки события столкновения игрока и врага*/
+
+EvilCollisPlayer: function(evels, b) {
+
+ this.live -= 10;
+ //console.log(this.live);
+this.lives.text = " Жизни: "+ this.live;
+
+//прокручивет объект по оси  
+//this.evels.body.angularAcceleration = 360;
+
+},
+
+/*обработчки сотытия столкновения фаербола и врага*/
+EvilCollisFaerb: function(evels, a) {
+evels.kill();
+console.log("Враг побежден!");
+},
+
+/*обработчик события столкновения меча аптечки и уровня*/
+AptCollisLivel: function (aptec, b) {
+  aptec.kill();
+},
+
 
 /*обработчик события столкновения фаербола со звездочкой*/
 ballCollidesWithFaerbol: function (a, stars) {
@@ -274,17 +399,14 @@ ballCollidesWithBlock: function(a, stars) {
   //star +=1;
   this.star += 10;
 
+
+
   //console.log(typeof this.star);
 
   //console.log(this.star);
   
 
   this.scoreText.text = "Звездочки: "+ this.star;
-
-
-
-/*СОСТОЯНИЯ (обработка событий)*/
-
 
 /*Конец игры*/
 
@@ -301,29 +423,7 @@ ballCollidesWithBlock: function(a, stars) {
 },
 
 
-/*столкновение звездочки и карты*/
 
-collisianStarLivel: function () {
-  this.game.physics.arcade.collide(this.stars, this.layer);
-},
-
-
-
-/*столкновение аптечки и карты*/
-collisianAptLivel: function () {
-  this.game.physics.arcade.collide(this.aptec, this.layer, this.AptCollisLivel);
-},
-
-/*обработчик события столкновения меча аптечки и уровня*/
-AptCollisLivel: function (aptec, b) {
-  aptec.kill();
-},
-
-
-/*столкновение врага и уровня*/
-collisianEvilLivel: function () {
-  this.game.physics.arcade.collide(this.evels, this.layer);
-},
 
 
 
@@ -564,6 +664,7 @@ handleKeyboardInput: function () {
 /*добавляем статичные методы*/
 
   create: function() {
+
     this.initWorld();
     this.addPlayer();
     this.addStars();
@@ -579,13 +680,18 @@ handleKeyboardInput: function () {
 
     this.fireBullet();
     this.addEvil();
+    this.togglePause();
 
 
   },
 
 /*добовляем динамические методы*/
   update: function() {
+    // игра не на пайхе при загрузке
+    this.game.paused = false;
 
+
+  this.collisianEvilPlayer();
   this.collisianPlayLayer();
   this.collisionPlayStar();
   this.collisianStarLivel();
@@ -594,11 +700,40 @@ handleKeyboardInput: function () {
   this.collisianFaerbolLayer();
   this.collisianFaerbolStar();
   this.collisianEvilLivel();
+  this.collisianEvilFaerbol();
+
+
+  //this.physics.arcade.moveToPointer(this.evels, 60, this.player, 500);
+
+  //this.physics.arcade.angleBetween(this.player, this.evels);
   
 
+  //this.player.rotation = this.physics.arcade.angleBetween(this.player, this.evels);
+ 
 
-   
+},
 
-}
+
+
+/*Дебагер игры*/
+
+  render: function () {
+    
+    //console.log("Это дебагер!");
+    this.game.debug.body(this.player);
+    this.game.debug.body(this.evels);
+
+    /*выводим текст и нужные переменные через дебагер*/
+    this.game.debug.text("Тут можно  выводить любое сообщение и нужные глобальные переменные", 32, 32, 'rgb(0,255,0)');
+
+    /*дебагер камеры*/
+    this.game.debug.cameraInfo(this.game.camera, 32, 64);
+
+    /*дебагер спрайта- выдают инфу по координатам*/
+    this.game.debug.spriteCoords(this.player, 32, 150);
+
+  }
+
+
 
 };
