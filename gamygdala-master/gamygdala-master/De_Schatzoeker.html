@@ -19,6 +19,7 @@ Leon = function(){
 	//simply create the namespace
 };
 
+
 /*ОБРАБОТЧИК КАРТЫ*/
 
 Leon.Map = function (game, w, h, tileImages, tileImageSize) {
@@ -60,10 +61,15 @@ Leon.Map.prototype.setLevel = function(lvlData){
 	}
 };
 
+
+/*ДОБОВЛЯЕМ КВАДРАТ*/
+
 Leon.Map.prototype.setTile = function(x,y,nr,dmg){
 	this.tiles[y][x]=nr;
 	this.damage[y][x]=dmg;
 };
+
+/*ДОБОВЛЯЕМ КАРТУ*/
 
 Leon.Map.prototype.createMap = function(){
 	//  The platforms group contains the tiles
