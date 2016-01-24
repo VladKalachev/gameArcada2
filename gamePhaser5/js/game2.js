@@ -36,6 +36,11 @@ GameStates.Game2 = {
 
     this.bullets;
 
+     // врани
+    
+    this.bad_guys=[];
+    this.NR_OF_BAD_GUYS=10;
+
 
 
 
@@ -45,7 +50,10 @@ GameStates.Game2 = {
     //  добавляем в игру физику (выбираем аркадную фищику)
     this.physics.startSystem(Phaser.Physics.ARCADE);
 
-    this.physics.arcade.gravity.y = 200;
+   //this.physics.arcade.gravity.y = 200;
+
+        // изменяет скорость просчитывание столкновение коллизий (исправляет баг с проваливанием объектов через платформы)
+    this.game.physics.arcade.TILE_BIAS = 40;
     
 
 /*ПАРАЛАКС ФОНА*/
@@ -145,6 +153,8 @@ GameStates.Game2 = {
     this.bullets.setAll('anchor.x', 0.5);
     this.bullets.setAll('anchor.y', 1);
 
+ 
+
 
 /*Счетчик звездочик*/
 
@@ -158,7 +168,29 @@ GameStates.Game2 = {
 
 },
   
+   /*ВРАГИ*/
 
+  addEvil: function () {
+
+    this.bad_guys = this.add.group();
+  // имее тело
+    this.bad_guys.enableBody = true;
+  // добовляем им физику
+    this.physics.arcade.enable(this.bad_guys);
+
+    for (var i=0;i<this.NR_OF_BAD_GUYS;i++){
+    this.bad_guy= this.bad_guys.create(250+i*500, this.world.height - 300, 'badguy');//250+i*500
+    
+    this.bad_guy.body.bounce.y = 0.2; // отскок от поверхности 0.2*i+0.2;
+    this.bad_guy.body.gravity.y = 300; // вектор гравитации
+    this.bad_guy.body.collideWorldBounds = true; // запрещаяе заходить за карту
+
+      // анимация врагов
+    this.bad_guy.animations.add('left',[0,1],10,true);
+    this.bad_guy.animations.add('right',[2,3],10,true);
+
+    }
+},
 
 /*ЗВЕЗДОЧКИ*/
 
@@ -280,7 +312,17 @@ AptCollisLivel: function (aptec, b) {
   aptec.kill();
 },
 
+/*столкновение врага и уровня*/
+collisianEvilLivel: function () {
 
+  this.game.physics.arcade.collide(this.bad_guys, this.layer);
+},
+
+/*событие врага и фаербола*/
+
+collisianEvilFaerbol: function () {
+  this.game.physics.arcade.collide(this.bad_guys, this.bullets, this.EvilCollisFaerb);
+},
 
 
 /*Счетчик очков*/
@@ -533,6 +575,7 @@ handleKeyboardInput: function () {
     this.camera.follow(this.player);
 
     this.fireBullet();
+    this.addEvil();
     
   },
 
@@ -544,6 +587,39 @@ handleKeyboardInput: function () {
   this.collisianStarLivel();
   //this.collisianAptLivel();
   this.handleKeyboardInput();
+  this.collisianEvilLivel();
+  this.collisianEvilFaerbol();
+
+
+  /*ВРАГ БЕГАЕТ ЗА ИГРОКОМ*/
+
+  for (var i=0; i < this.bad_guys.countLiving(); i++){
+
+    // получаем одного врага из нескольких
+    this.bad_guy=this.bad_guys.getAt(i);
+    // устанавливаем их скороть перемищения
+    this.speed=20+10*i;
+    
+
+    // основное условие
+    if (this.player.body.x+1 < this.bad_guy.body.x)
+    { 
+      this.bad_guy.body.velocity.x=-this.speed;
+      this.bad_guy.animations.play('left');
+    
+    } else  if (this.player.body.x-1 > this.bad_guy.body.x) {
+
+      this.bad_guy.body.velocity.x=this.speed;
+      this.bad_guy.animations.play('right');
+    
+    } /*else if (bad_guy.body.touching.down){ 
+      
+      bad_guy.body.velocity.x=0;
+      bad_guy.body.velocity.y=-speed*3;
+      bad_guy.animations.stop();
+
+    } */
+  }
 
 
    

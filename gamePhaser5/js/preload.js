@@ -24,8 +24,10 @@ GameStates.Preloader = {
 
     this.load.spritesheet('mario', 'assets/mariospritesheet-small.png',50,50);
 
-    // враг
 
+
+    // враг
+    this.load.spritesheet('badguy','assets/baddie.png', 32, 32);
     //this.load.spritesheet('evil', 'assets/baddie.png');
 
 

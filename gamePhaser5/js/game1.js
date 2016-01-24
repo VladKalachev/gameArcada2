@@ -36,18 +36,17 @@ GameStates.Game = {
     this.lives;
 
     this.spaceKey;
-    
-
-   
-
+  
     this.bullets;
 
     this.pausa;
 
+// врани
     
+    this.bad_guys=[];
+    this.NR_OF_BAD_GUYS=10;
 
-
-
+  
 
 /*ФИЗИКА*/
 
@@ -55,7 +54,10 @@ GameStates.Game = {
     //  добавляем в игру физику (выбираем аркадную фищику)
     this.physics.startSystem(Phaser.Physics.ARCADE);
 
-    this.physics.arcade.gravity.y = 200;
+    // изменяет скорость просчитывание столкновение коллизий (исправляет баг с проваливанием объектов через платформы)
+    this.game.physics.arcade.TILE_BIAS = 40;
+
+    //this.physics.arcade.gravity.y = 200;
     
 
 /*ПАРАЛАКС ФОНА*/
@@ -131,7 +133,7 @@ GameStates.Game = {
 
     //  добовляем параметры для физики
     this.player.body.bounce.y = 0.2; // отскок от поверхности
-    this.player.body.gravity.y = 300; // вектор гравитации
+    this.player.body.gravity.y = 500; // вектор гравитации
     this.player.body.collideWorldBounds = true; // запещаем игроку заходить за гроницы мира
     this.player.body.setSize(20, 32, 5, 16); // добовляем карту для тела, по нему будут происходить столкновения
 
@@ -187,13 +189,32 @@ GameStates.Game = {
 
   addEvil: function () {
 
+    this.bad_guys = this.add.group();
+  // имее тело
+    this.bad_guys.enableBody = true;
+  // добовляем им физику
+    this.physics.arcade.enable(this.bad_guys);
+
+    for (var i=0;i<this.NR_OF_BAD_GUYS;i++){
+    this.bad_guy= this.bad_guys.create(250+i*500, this.world.height - 300, 'badguy');//250+i*500
+    
+    this.bad_guy.body.bounce.y = 0.2; // отскок от поверхности 0.2*i+0.2;
+    this.bad_guy.body.gravity.y = 300; // вектор гравитации
+    this.bad_guy.body.collideWorldBounds = true; // запрещаяе заходить за карту
+
+      // анимация врагов
+    this.bad_guy.animations.add('left',[0,1],10,true);
+    this.bad_guy.animations.add('right',[2,3],10,true);
+
+  }
+
      //this.evel = this.add.group();
 
      //this.evel.enableBody = true;
 
      //var this.evels = this.add.create(70, 0, 'mario');
 
-     this.evels = this.add.sprite(570, 350, 'mario');
+     /*this.evels = this.add.sprite(370, 350, 'mario');
 
      this.physics.arcade.enable(this.evels, Phaser.Physics.ARCADE);
 
@@ -202,11 +223,11 @@ GameStates.Game = {
      this.evels.scale.x = -1;
     
       this.evels.enableBody = true;
-      this.evels.body.gravity.y = 300;
+      this.evels.body.gravity.y = 300;*/
 
 
       // запрещает врагу передвигаться при столкновение!
-     this.evels.body.immovable = true;
+     //this.evels.body.immovable = true;
 
      //изменяем зону коллизии
 
@@ -341,13 +362,14 @@ collisianAptLivel: function () {
 
 /*столкновение врага и уровня*/
 collisianEvilLivel: function () {
-  this.game.physics.arcade.collide(this.evels, this.layer);
+
+  this.game.physics.arcade.collide(this.bad_guys, this.layer);
 },
 
 /*событие врага и фаербола*/
 
 collisianEvilFaerbol: function () {
-  this.game.physics.arcade.collide(this.evels, this.bullets, this.EvilCollisFaerb);
+  this.game.physics.arcade.collide(this.bad_guys, this.bullets, this.EvilCollisFaerb);
 },
 
 /*столкновение игрока с врагом*/
@@ -535,32 +557,18 @@ handleKeyboardInput: function () {
     { 
 
         
-        /*ЗЕРКАЛЬНО ОТОБРАЖАЕМ ОБЪЕКТ*/
-        // element.scale.(x,y) - можно скалировать( изменять размеры относительно координат) и отображать зеркально (если поставить значение -1)
-        //this.player.scale.x = -1;
+
 
         this.player.scale.x = -1;
 
 
         this.player.animations.play('go');
 
-        //console.log(this.player.scale.x);
 
         //  изменяем крость тела игрока
         this.player.body.velocity.x = -150;
 
 
-        // добовляем анимацию при нажатие
-        //this.player.animations.play('left');
-        //console.log(this.player.body.velocity.x);
-
-
-        // сохраняем положение игрока в переменной
-        /*if (this.facing != 'left')
-        {
-            this.player.animations.play('left');
-            this.facing = 'left';
-        }*/
 
 
     }
@@ -571,25 +579,12 @@ handleKeyboardInput: function () {
 
         this.player.scale.x = 1;
 
-        //this.player.scale.x = 1;
-
-        //console.log(this.player.scale.x);
-
         //  изменяем вектор скорости и добовляем анимацию
         this.player.animations.play('go');
 
         this.player.body.velocity.x = 150;
         //this.player.animations.play('right');
 
-        //this.camera.x += 1;
- //console.log(this.player.body.velocity.x);
-        //this.player.animations.play('right');
-
-        /*if (this.facing != 'right')
-        {
-            this.player.animations.play('right');
-            this.facing = 'right';
-        }*/
     
 
 
@@ -601,44 +596,19 @@ handleKeyboardInput: function () {
 
         this.player.animations.stop();
 
-        
-       
-            this.player.loadTexture('dude', 5);
-       
+        this.player.loadTexture('dude', 5);
 
-            
-
-
-      /*if (this.facing != 'idle')
-        {
-            this.player.animations.stop();
-
-            if (this.facing == 'left')
-            {
-                this.player.frame = 0;
-            }
-            else
-            {
-                this.player.frame = 5;
-            }
-
-            this.facing = 'idle';
-        }*/
-        // если мы не нажимаем то анимация остонавливается
-        //this.player.animations.stop();
-         //console.log(this.player.body.velocity.x);
-
-        // выбираем 4 слайд (из спрайта)
-        //this.player.frame = 4;
+  
     }
 
 
 
 /*ПРЫЖОК*/
-
-    //  разрешае игроку прыгать если он находиться на змеле
+//this.cursors.up.isDown && this.player.body.touching.down
+    //  разрешае игроку прыгать если он находиться на змеле this.cursors.up.isDown && this.player.body.onFloor()
     if (this.cursors.up.isDown && this.player.body.onFloor()) // если нажата кнопка вверх и тело игрока касаеться низа
     {
+      //console.log(this.player.body.touching.down);
         this.player.body.velocity.y = -310;
 
     };
@@ -709,7 +679,43 @@ handleKeyboardInput: function () {
   
 
   //this.player.rotation = this.physics.arcade.angleBetween(this.player, this.evels);
- 
+
+  /*ВРАГИ ПРИСЛЕЛУЮТ*/
+
+
+
+    for (var i=0; i < this.bad_guys.countLiving(); i++){
+
+    // получаем одного врага из нескольких
+    this.bad_guy=this.bad_guys.getAt(i);
+    // устанавливаем их скороть перемищения
+    this.speed=20+10*i;
+    
+
+    // основное условие
+    if (this.player.body.x+1 < this.bad_guy.body.x)
+    { 
+      this.bad_guy.body.velocity.x=-this.speed;
+      this.bad_guy.animations.play('left');
+    
+    } else  if (this.player.body.x-1 > this.bad_guy.body.x) {
+
+      this.bad_guy.body.velocity.x=this.speed;
+      this.bad_guy.animations.play('right');
+    
+    } else if (this.bad_guy.body.touching.down ){ 
+//this.cursors.up.isDown && this.player.body.onFloor()
+      console.log(this.bad_guy.body.touching.down);
+      
+      this.bad_guy.body.velocity.x=0;
+      this.bad_guy.body.velocity.y= - this.speed*3;
+      this.bad_guy.animations.stop();
+
+    } 
+  }
+
+
+
 
 },
 
@@ -720,17 +726,17 @@ handleKeyboardInput: function () {
   render: function () {
     
     //console.log("Это дебагер!");
-    this.game.debug.body(this.player);
-    this.game.debug.body(this.evels);
+    //this.game.debug.body(this.player);
+    //this.game.debug.body(this.evels);
 
     /*выводим текст и нужные переменные через дебагер*/
-    this.game.debug.text("Тут можно  выводить любое сообщение и нужные глобальные переменные", 32, 32, 'rgb(0,255,0)');
+//    this.game.debug.text("Тут можно  выводить любое сообщение и нужные глобальные переменные", 32, 32, 'rgb(0,255,0)');
 
     /*дебагер камеры*/
-    this.game.debug.cameraInfo(this.game.camera, 32, 64);
+ //   this.game.debug.cameraInfo(this.game.camera, 32, 64);
 
     /*дебагер спрайта- выдают инфу по координатам*/
-    this.game.debug.spriteCoords(this.player, 32, 150);
+   // this.game.debug.spriteCoords(this.player, 32, 150);
 
   }
 
