@@ -32,6 +32,7 @@ GameStates.Game = {
     // переменные уровня
     this.map;
     this.layer;
+    this.ships;
 
     this.star = 0;
     //console.log(typeof this.star);
@@ -73,7 +74,7 @@ GameStates.Game = {
     // изменяет скорость просчитывание столкновение коллизий (исправляет баг с проваливанием объектов через платформы)
     this.game.physics.arcade.TILE_BIAS = 40;
 
-    //this.physics.arcade.gravity.y = 200;
+    this.physics.arcade.gravity.y = 200;
     
 
 /*ПАРАЛАКС ФОНА*/
@@ -95,17 +96,47 @@ GameStates.Game = {
     // добовляем спрайт
     this.map.addTilesetImage('tiles');
 
-    // физика для карты
-    this.map.setCollisionByExclusion([ 13, 14, 15, 16, 46, 47, 48, 49, 50, 51 ]);
+   
 
     // инициализируем слой
     this.layer = this.map.createLayer('Tile Layer 1');
+
     // растягиваем его по всему миру 
     this.layer.resizeWorld();
 
     this.layer.enableBody = true;
 
-    this.layer.immovable = true;
+    this.layer.immovable = true; 
+
+    // физика для карты (указываем коллизию для первого основного слоя)
+    this.map.setCollisionByExclusion([0],true, 'Tile Layer 1');
+
+/*ШИПЫ*/
+    
+    // инициализируем
+    this.ships = this.map.createLayer('Tile Layer 2');
+    //this.ships1 = this.map.createLayer('Tile Layer 3');
+
+    // добовляем им коллизию
+    this.map.setCollisionBetween(1,20,true,'Tile Layer 2');
+
+
+
+
+
+
+    //mymap.setCollisionByExclusion([0],true, 'layer1');  // будет сталкиваться со всеми плитками кроме 0 т.к. ее нет!
+    //mymap.setCollisionBetween(1,20,true,'layer2');  // столкновение будет возможно на всех плитках от 1 до 20
+
+
+    this.ships.resizeWorld();
+    
+
+    this.ships.enableBody = true;
+
+    this.ships.immovable = true;
+
+    //this.ships.body.setSize(20, 32, 5, 16);
     
     // добовляем коллизию с tilemap
     //this.map.setCollisionBetween(1, 12);
@@ -149,7 +180,7 @@ GameStates.Game = {
 
     //  добовляем параметры для физики
     this.player.body.bounce.y = 0.2; // отскок от поверхности
-    this.player.body.gravity.y = 500; // вектор гравитации
+    this.player.body.gravity.y = 170; // вектор гравитации
     this.player.body.collideWorldBounds = true; // запещаем игроку заходить за гроницы мира
     //this.player.body.setSize(20, 32, 5, 16); // добовляем карту для тела, по нему будут происходить столкновения
 
@@ -383,6 +414,18 @@ collisianPlayLayer: function () {
   this.game.physics.arcade.collide(this.player, this.layer);
 },
 
+/*столкновение игрока с шипами*/
+
+collisianPlayerShip: function () {
+
+  this.game.physics.arcade.collide(this.player, this.ships, this.ShipCollionPlayer, null, this);
+},
+
+collisianPlayerShip2: function () {
+
+  this.game.physics.arcade.collide(this.player, this.ships1, this.ShipCollionPlayer, null, this);
+},
+
 
 /*столкновение игрока со звездочкой*/
 collisionPlayStar: function () {
@@ -440,12 +483,21 @@ collisianEvilPlayer: function () {
 
 
 
+
 /*ОБРАБОТЧИКИ СОБЫТИЙ*/
+
+/*Обработка события столкновение игрока с шипами*/
+
+ShipCollionPlayer: function () {
+
+  console.log("Это шипы!");
+
+   this.state.start('Gameover');
+
+},
 
 
 /*обработчки события столкновения игрока и врага*/
-
-
 
 hit: function(player, bad_guy) {
 
@@ -873,6 +925,11 @@ handleKeyboardInput: function () {
 
   this.collisianEvilPlayer();
   this.collisianPlayLayer();
+ //столкновение с шипами
+
+  this.collisianPlayerShip();
+  this.collisianPlayerShip2();
+
   this.collisionPlayStar();
   this.collisianStarLivel();
   //this.collisianAptLivel();
@@ -884,6 +941,8 @@ handleKeyboardInput: function () {
 
   //очищаем взрыв
   this.setupInvader();
+
+ 
 
 
   //this.physics.arcade.moveToPointer(this.evels, 60, this.player, 500);
@@ -942,6 +1001,8 @@ handleKeyboardInput: function () {
     //console.log("Это дебагер!");
     //this.game.debug.body(this.player);
     //this.game.debug.body(this.evels);
+
+    this.game.debug.body(this.ships);
 
     /*выводим текст и нужные переменные через дебагер*/
 //    this.game.debug.text("Тут можно  выводить любое сообщение и нужные глобальные переменные", 32, 32, 'rgb(0,255,0)');
