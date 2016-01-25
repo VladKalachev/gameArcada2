@@ -29,6 +29,11 @@ GameStates.Preloader = {
     // враг
     this.load.spritesheet('badguy','assets/baddie.png', 32, 32);
     //this.load.spritesheet('evil', 'assets/baddie.png');
+    // жизни
+    this.load.image('live', 'assets/life.png');
+
+    //взрывы (при уничтожение объектов)
+    this.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
 
 
   },

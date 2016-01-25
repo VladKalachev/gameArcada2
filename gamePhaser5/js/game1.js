@@ -6,11 +6,21 @@ GameStates.Game = {
 /*КОНСТАНТЫ*/
 
 
+
   /*метод добовляет мир в игру*/
   initWorld: function() {
 
+    this.invader;
+
+    // взрывы
+
+    this.explosions;
+  
+    // Таймер
+
+    this.hitTimer = 0;
     
-    this.live = 100;  
+    //this.live = 100;  
     /*ИГРОВЫЕ КОНСТАНТЫ*/
     this.evels;
     this.score = 0;
@@ -18,7 +28,7 @@ GameStates.Game = {
     this.scoreText;
     this.platforms;
     
-    this.liveText;
+    //this.liveText;
     // переменные уровня
     this.map;
     this.layer;
@@ -33,7 +43,9 @@ GameStates.Game = {
 
     // жизни
 
-    this.lives;
+    //this.lives;
+    this.lifes;
+
 
     this.spaceKey;
   
@@ -41,10 +53,14 @@ GameStates.Game = {
 
     this.pausa;
 
+
+
 // врани
     
     this.bad_guys=[];
     this.NR_OF_BAD_GUYS=10;
+
+
 
   
 
@@ -129,13 +145,13 @@ GameStates.Game = {
 
 /*ФИЗИКА ИГРОКА*/
     //  добовляем играку физику (инициализируем ее)
-    this.physics.arcade.enable(this.player, Phaser.Physics.ARCADE);
+    this.physics.arcade.enable(this.player);
 
     //  добовляем параметры для физики
     this.player.body.bounce.y = 0.2; // отскок от поверхности
     this.player.body.gravity.y = 500; // вектор гравитации
     this.player.body.collideWorldBounds = true; // запещаем игроку заходить за гроницы мира
-    this.player.body.setSize(20, 32, 5, 16); // добовляем карту для тела, по нему будут происходить столкновения
+    //this.player.body.setSize(20, 32, 5, 16); // добовляем карту для тела, по нему будут происходить столкновения
 
 
 /*АНИМАЦИЯ ИГРОКА*/
@@ -144,6 +160,7 @@ GameStates.Game = {
     //this.player.animations.add('left', [0, 1, 2, 3], 10, true); // название, номера слайдов, колчество кадров в
     // секунду, true замыкаем анимацию в цикде
     this.player.animations.add('go', [5, 6, 7, 8], 10, true);
+    this.player.animations.add('hit', [2, 4, 5], 20, true);
 
 
 /*ПУЛЯ*/
@@ -178,11 +195,13 @@ GameStates.Game = {
 
 /*СЧЕТЧИК ЖЫЗНЕЙ*/
 
-  this.lives = this.add.text(600,20, "Жизни: 100", { fontSize: '32px', fill: '#fff' });
+  //this.lives = this.add.text(600,20, "Жизни: 100", { fontSize: '32px', fill: '#fff' });
 
-  this.lives.fixedToCamera = true;
+  //this.lives.fixedToCamera = true;
 
 },
+
+
 
 
 /*ВРАГИ*/
@@ -242,6 +261,27 @@ GameStates.Game = {
   },
 
 
+
+/*ЖИЗНИ*/
+
+addLive: function () {
+
+// создаем группу сердечик
+  this.lifes = this.add.group();
+
+// через цикл выводим три звездочки
+  for (var i=0;i<3;i++){
+
+// выводим
+    this.lifes.create(16+i*32,50,'live');
+// фиксируем их на одном месте на экране
+    this.lifes.fixedToCamera = true;
+
+  }
+
+},
+
+
 /*ЗВЕЗДОЧКИ*/
 
   addStars: function () {
@@ -266,6 +306,25 @@ GameStates.Game = {
     };
 
 },
+
+
+/*ВЗРЫВЫ*/
+
+addExplosions: function() {
+  
+  //  делаем группу
+    this.explosions = this.add.group();
+
+  // добовляем в нее изображения
+    this.explosions.createMultiple(30, 'kaboom');
+
+
+    console.log()
+  // добовляем события для очистки огня и анимации взрыва
+   //this.explosions.forEach(this.setupInvader, this);
+},
+
+
 
 
 
@@ -369,14 +428,14 @@ collisianEvilLivel: function () {
 /*событие врага и фаербола*/
 
 collisianEvilFaerbol: function () {
-  this.game.physics.arcade.collide(this.bad_guys, this.bullets, this.EvilCollisFaerb);
+  this.game.physics.arcade.collide(this.bad_guys, this.bullets, this.EvilCollisFaerb, null, this);
 },
 
 /*столкновение игрока с врагом*/
 
 collisianEvilPlayer: function () {
-  this.game.physics.arcade.collide(this.evels, this.player, this.EvilCollisPlayer,null, this);
 
+  this.game.physics.arcade.collide( this.player, this.bad_guys, this.hit, null, this);
 },
 
 
@@ -386,20 +445,166 @@ collisianEvilPlayer: function () {
 
 /*обработчки события столкновения игрока и врага*/
 
-EvilCollisPlayer: function(evels, b) {
 
- this.live -= 10;
- //console.log(this.live);
-this.lives.text = " Жизни: "+ this.live;
+
+hit: function(player, bad_guy) {
+
+//this.live -= 10;
+
+//this.lives.text = " Жизни: "+ this.live;
+
+//console.log("Столкновение с врагом");
 
 //прокручивет объект по оси  
 //this.evels.body.angularAcceleration = 360;
 
+
+
+
+
+
+if (this.hitTimer<=0){
+  
+    this.lifes.getFirstAlive().kill();
+
+
+    //player.body.velocity.y = -150;
+
+    if (this.player.body.x < this.bad_guy.body.x) {
+      //console.log(player.body.x < bad_guy.body.x);
+      this.player.body.velocity.x = -200;
+    }
+
+    else {
+
+      this.player.body.velocity.x = 200;
+      console.log(111);
+
+
+    }
+    
+    this.player.animations.play('hit');
+
+    this.hitTimer=50;
+
+    //bulletTime = this.time.now + 300;
+    
+    // условие проиграша
+    if (this.lifes.countLiving()==0){
+
+
+      if (this.hitTimer<=0){
+      //game.paused=true;
+      this.player.body.angularAcceleration = 360;
+    }
+      else
+      this.hitTimer=50;
+
+
+      this.player.kill();
+
+/*Создаем взрыв*/
+//this.explosion = this.explosions.getFirstExists(false);
+
+this.explosion = this.explosions.getFirstExists(false);// получаем из множества объектов один (false - находит первый не 
+            // существующий элимент)
+this.explosion.reset(this.player.body.x, this.player.body.y-60);
+this.explosion.play('kaboom', 30, false, true);
+
+//this.explosion.animations.add('kaboom');
+
+  //анимация взрыва
+this.explosion.animations.add('kaboomanim',[1,2,3,4,5,6,7,8,10,11],10,true)
+//проиграет аницацию
+
+this.explosion.animations.play('kaboomanim');
+
+
+this.explosion.lifespan = 500;
+
+//this.game.time.events.next.toFixed(0), 32, 64;
+
+//this.game.time.events.duration.toFixed(100), 32, 32;
+
+//this.game.time.events.loop(1500, this.state.start('Gameover'), this);
+
+
+      this.state.start('Gameover');
+
+    }
+
+  } 
+
 },
 
+
+
+/*function setupInvader (invader) {
+
+    invader.anchor.x = 0.5;
+    invader.anchor.y = 0.5;
+    invader.animations.add('kaboom');
+
+}*/
+
+setupInvader: function  (invader) {
+
+    //this.invader.anchor.x = 0.5;
+    //invader.anchor.y = 0.5;
+    //invader.animations.add('kaboom');
+
+},
+
+
+
 /*обработчки сотытия столкновения фаербола и врага*/
-EvilCollisFaerb: function(evels, a) {
-evels.kill();
+EvilCollisFaerb: function(bad_guy, a) {
+//this.bad_guy.exists = true;
+
+ //this.player.anchor.setTo(0.5, 0);
+//bad_guy.scale.y = -1;
+//bad_guy.add.sprite(32, 50, 'dude');
+
+bad_guy.kill();
+
+/*Создаем взрыв*/
+//this.explosion = this.explosions.getFirstExists(false);
+
+this.explosion = this.explosions.getFirstExists(false);// получаем из множества объектов один (false - находит первый не 
+            // существующий элимент)
+this.explosion.reset(bad_guy.body.x, bad_guy.body.y-60);
+this.explosion.play('kaboom', 30, false, true);
+
+//this.explosion.animations.add('kaboom');
+
+  //анимация взрыва
+this.explosion.animations.add('kaboomanim',[1,2,3,4,5,6,7,8,10,11],10,true)
+//проиграет аницацию
+
+this.explosion.animations.play('kaboomanim');
+
+
+this.explosion.lifespan = 500;
+
+
+
+
+//bad_guy.callAll('dude');
+
+//bad_guy.enableBody = false;
+//bad_guy.body.collideWorldBounds = false;
+
+//bad_guy.body.bounce.y = 0.2; // отскок от поверхности
+//bad_guy.body.gravity.y = -500; // вектор гравитации
+//bad_guy.body.collideWorldBounds = true; // запещаем игроку заходить за гроницы мира
+
+//bad_guy.anchor.setTo(0.5, 0.5);
+//bad_guy.body.angularAcceleration = 100;
+//bad_guy.lifespan = 500; // используеться в место кил, отличие в возможности установить таймер (через сколько милесикунд исчесзинт объект)
+
+
+//bad_guy.kill();
+//evels.kill();
 console.log("Враг побежден!");
 },
 
@@ -536,6 +741,7 @@ wotchXP: function () {
             }
 
 
+
         }
     }
 
@@ -548,28 +754,21 @@ wotchXP: function () {
 */
 handleKeyboardInput: function () {
 
-    
+  if (this.hitTimer<=0){
+
     this.player.body.velocity.x = 0;
         // добовляем управление
 
     /*ЛЕВО*/
     if (this.cursors.left.isDown)
     { 
-
         
-
-
         this.player.scale.x = -1;
-
 
         this.player.animations.play('go');
 
-
         //  изменяем крость тела игрока
         this.player.body.velocity.x = -150;
-
-
-
 
     }
 
@@ -601,6 +800,13 @@ handleKeyboardInput: function () {
   
     }
 
+         }
+
+    else 
+
+      this.hitTimer--;  
+
+
 
 
 /*ПРЫЖОК*/
@@ -623,7 +829,8 @@ handleKeyboardInput: function () {
             
     };
 
-       
+      
+  
 
 },
 
@@ -639,6 +846,7 @@ handleKeyboardInput: function () {
     this.addPlayer();
     this.addStars();
     this.wotchXP();
+    this.addLive();
 
     
     //this.addApt();
@@ -651,6 +859,8 @@ handleKeyboardInput: function () {
     this.fireBullet();
     this.addEvil();
     this.togglePause();
+
+    this.addExplosions();
 
 
   },
@@ -672,6 +882,9 @@ handleKeyboardInput: function () {
   this.collisianEvilLivel();
   this.collisianEvilFaerbol();
 
+  //очищаем взрыв
+  this.setupInvader();
+
 
   //this.physics.arcade.moveToPointer(this.evels, 60, this.player, 500);
 
@@ -680,16 +893,17 @@ handleKeyboardInput: function () {
 
   //this.player.rotation = this.physics.arcade.angleBetween(this.player, this.evels);
 
+
+
+
   /*ВРАГИ ПРИСЛЕЛУЮТ*/
-
-
 
     for (var i=0; i < this.bad_guys.countLiving(); i++){
 
     // получаем одного врага из нескольких
     this.bad_guy=this.bad_guys.getAt(i);
     // устанавливаем их скороть перемищения
-    this.speed=20+10*i;
+    this.speed=50+10*i;
     
 
     // основное условие
@@ -703,9 +917,9 @@ handleKeyboardInput: function () {
       this.bad_guy.body.velocity.x=this.speed;
       this.bad_guy.animations.play('right');
     
-    } else if (this.bad_guy.body.touching.down ){ 
-//this.cursors.up.isDown && this.player.body.onFloor()
-      console.log(this.bad_guy.body.touching.down);
+    } else if (this.bad_guy.body.onFloor()){ 
+      //this.cursors.up.isDown && this.player.body.onFloor()
+      //console.log(this.bad_guy.body.touching.down);
       
       this.bad_guy.body.velocity.x=0;
       this.bad_guy.body.velocity.y= - this.speed*3;
