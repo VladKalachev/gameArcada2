@@ -3,8 +3,9 @@
 
 GameStates.Game = {
 
-/*КОНСТАНТЫ*/
 
+
+/*КОНСТАНТЫ*/
 
 
   /*метод добовляет мир в игру*/
@@ -288,6 +289,20 @@ GameStates.Game = {
     /*//  добовляем им вектор гравитации
     this.evels.body.gravity.y = 100;     
     this.evels.body.bounce.y = 0.2 ;*/
+
+    /*ДОБОВЛЯЕМ ОБЛАКА*/
+
+          /*  this.clouds = this.add.physicsGroup();
+
+            this.cloud1 = new CloudPlatform(this.game, 300, 450, 'cloud-platform', this.clouds);
+
+            this.cloud1.addMotionPath([
+                { x: "+200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeIn" },
+                { x: "-200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeOut" },
+                { x: "-200", xSpeed: 2000, xEase: "Linear", y: "+200", ySpeed: 2000, yEase: "Sine.easeIn" },
+                { x: "+200", xSpeed: 2000, xEase: "Linear", y: "+200", ySpeed: 2000, yEase: "Sine.easeOut" }
+            ]);*/
+
 
   },
 
@@ -715,6 +730,8 @@ AptCollisPlauer: function (player, aptec) {
   this.lifes.create(16,50,'live');
  } else if (this.lifes.countLiving() == 1) {
   this.lifes.create(49,50,'live');
+ } else if (this.lifes.countLiving() >= 3){ // услоивие при которое если у нас больше звездочек чем три то значение остаеться равно трем
+  this.lifes.countLiving() == 3;
  }
 
 //console.log(this.lifes);
@@ -732,7 +749,7 @@ AptCollisPlauer: function (player, aptec) {
  } else {
 
  }*/
- 
+
   
 
   //this.lifes.getFirstAlive().kill();
@@ -888,6 +905,10 @@ wotchXP: function () {
     }
 
   },
+
+
+
+
 
 
 
@@ -1091,6 +1112,9 @@ console.log(this.lifes.countLiving());
 
 
 
+
+
+
 /*Дебагер игры*/
 
   render: function () {
@@ -1110,7 +1134,30 @@ console.log(this.lifes.countLiving());
     /*дебагер спрайта- выдают инфу по координатам*/
    // this.game.debug.spriteCoords(this.player, 32, 150);
 
-  }
+  },
+
+
+ /*КОНСТРУКТОР ОБЛАКОВ*/
+  CloudPlatform: function (game, x, y, key, group) {
+
+        if (typeof group === 'undefined') { group = game.world; }
+
+        Phaser.Sprite.call(this, game, x, y, key);
+
+        game.physics.arcade.enable(this);
+
+        this.anchor.x = 0.5;
+
+        this.body.customSeparateX = true;
+        this.body.customSeparateY = true;
+        this.body.allowGravity = false;
+        this.body.immovable = true;
+
+        this.playerLocked = false;
+
+        group.add(this);
+
+    },
 
 
 

@@ -35,6 +35,9 @@ GameStates.Preloader = {
     //взрывы (при уничтожение объектов)
     this.load.spritesheet('kaboom', 'assets/explode.png', 128, 128);
 
+    //загружаем облака
+    this.load.image('cloud-platform', 'assets/cloud-platform.png');
+
 
   },
   /*метод инициализирует игру для перезода в другое состояние (в
