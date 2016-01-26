@@ -732,6 +732,7 @@ AptCollisPlauer: function (player, aptec) {
  } else {
 
  }*/
+ 
   
 
   //this.lifes.getFirstAlive().kill();
