@@ -370,14 +370,21 @@ addApt: function () {
     // добовляем массу тела
     this.aptec.enableBody = true;
 
-     var star = this.aptec.create(0, this.world.height - 164, 'apt');
+     var star = this.aptec.create(500, this.world.height - 264, 'apt');
 
     //  добовляем им вектор гравитации
     star.body.gravity.y = 300;
 
     // добовляем им случаную скорость отталкивания от поверхности
     star.body.bounce.y = 0.2;
-    
+
+    var star2 = this.aptec.create(200, this.world.height - 264, 'apt');
+
+     //  добовляем им вектор гравитации
+    star2.body.gravity.y = 300;
+
+    // добовляем им случаную скорость отталкивания от поверхности
+    star2.body.bounce.y = 0.2;
 
 },
 
@@ -461,6 +468,14 @@ collisianAptLivel: function () {
 },
 
 
+/*столкновение игрока и аптечки*/
+
+collisianPlayerApt: function () {
+
+ this.game.physics.arcade.collide(this.player, this.aptec, this.AptCollisPlauer, null, this);
+
+},
+
 
 /*столкновение врага и уровня*/
 collisianEvilLivel: function () {
@@ -485,6 +500,8 @@ collisianEvilPlayer: function () {
 
 
 /*ОБРАБОТЧИКИ СОБЫТИЙ*/
+
+
 
 /*Обработка события столкновение игрока с шипами*/
 
@@ -610,6 +627,7 @@ setupInvader: function  (invader) {
 
 
 /*обработчки сотытия столкновения фаербола и врага*/
+
 EvilCollisFaerb: function(bad_guy, a) {
 //this.bad_guy.exists = true;
 
@@ -660,15 +678,86 @@ this.explosion.lifespan = 500;
 console.log("Враг побежден!");
 },
 
+
 /*обработчик события столкновения меча аптечки и уровня*/
-AptCollisLivel: function (aptec, b) {
-  aptec.kill();
+
+AptCollisLivel: function (aptec, layer) {
+
+  //aptec.kill();
+  //console.log("Это аптечкак!");
+
 },
 
 
 /*обработчик события столкновения фаербола со звездочкой*/
 ballCollidesWithFaerbol: function (a, stars) {
     stars.kill();
+},
+
+
+/*Обработчик столкновения игрока и аптечки*/
+
+
+AptCollisPlauer: function (player, aptec) {
+
+  console.log("вы взяли аптечку");
+
+
+  aptec.kill();
+
+// удаляет первый элимент
+  //this.lifes.getFirstAlive().kill();
+
+// добовляем элимент в указанные коориднаты
+ // this.lifes.create(16,50,'live');
+
+  if (this.lifes.countLiving() == 2){
+  this.lifes.create(16,50,'live');
+ } else if (this.lifes.countLiving() == 1) {
+  this.lifes.create(49,50,'live');
+ }
+
+//console.log(this.lifes);
+
+  //console.log(this.lifes.countLiving().kill());
+
+
+
+//this.lifes += 1;
+
+/* if (this.lifes.countLiving() <= 3){
+  this.lifes.create(16,50,'live');
+ } else if ( this.lifes.countLiving() <= 2) {
+  this.lifes.create(32,50,'live');
+ } else {
+
+ }*/
+  
+
+  //this.lifes.getFirstAlive().kill();
+
+  //console.log(this.lifes.countLiving());
+
+  /*if (this.lifes.countLiving() == 3){
+
+    this.lifes.countLiving() ++;
+
+    this.lifes.create(16,50,'live');*/
+
+  /*}, else if (this.lifes.countLiving() == 2) {
+
+    this.lifes.create(16,50,'live');
+
+  }, else if (this.lifes.countLiving() == 1) {
+
+    this.lifes.create(16,50,'live');
+
+  }, else {
+    consol.log("не добавит");
+  },*/
+
+  //if (this.lifes.countLiving()==0){
+
 },
 
 /*обработчик события столкновения игрока и звездочки*/
@@ -901,7 +990,7 @@ handleKeyboardInput: function () {
     this.addLive();
 
     
-    //this.addApt();
+    this.addApt();
 
          /*Камера*/
 
@@ -922,6 +1011,8 @@ handleKeyboardInput: function () {
     // игра не на пайхе при загрузке
     this.game.paused = false;
 
+// проверка количество жизней
+console.log(this.lifes.countLiving());
 
   this.collisianEvilPlayer();
   this.collisianPlayLayer();
@@ -932,7 +1023,10 @@ handleKeyboardInput: function () {
 
   this.collisionPlayStar();
   this.collisianStarLivel();
-  //this.collisianAptLivel();
+  //аптечка
+  this.collisianAptLivel();
+  this.collisianPlayerApt();
+
   this.handleKeyboardInput();
   this.collisianFaerbolLayer();
   this.collisianFaerbolStar();
@@ -941,6 +1035,8 @@ handleKeyboardInput: function () {
 
   //очищаем взрыв
   this.setupInvader();
+
+
 
  
 
