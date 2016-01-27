@@ -38,6 +38,9 @@ GameStates.Preloader = {
     //загружаем облака
     this.load.image('cloud-platform', 'assets/cloud-platform.png');
 
+    //загружаем флаг
+    this.load.image('flag', 'assets/checkpoint.png');
+
 
   },
   /*метод инициализирует игру для перезода в другое состояние (в

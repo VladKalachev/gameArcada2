@@ -245,7 +245,35 @@ GameStates.Game = {
 },
 
 
+/*ФЛАГ*/
 
+addFlag: function () {
+
+    // добовляем группу флаги
+    this.flags = this.add.group();
+    // добовляем группе массу тела
+         // добовляем группе массу тела
+    //this.bullets.enableBody = true;
+    // добовляем им физику
+    this.flags.physicsBodyType = Phaser.Physics.ARCADE;  
+    this.flags.enableBody = true; 
+
+
+
+    this.flags.immovable = false;
+
+    //this.physics.arcade.enable(this.flags);
+
+    this.flag = this.flags.create(600, 350, 'flag');
+
+  //this.flag.body.velocity.x = 0;
+
+
+
+
+
+  
+},
 
 /*ВРАГИ*/
 
@@ -574,6 +602,18 @@ collisionPlauerCpoud: function () {
 
 },
 
+collisianLivelFlag: function () {
+
+  this.game.physics.arcade.collide( this.flags, this.layer);
+
+},
+
+collisianPlauerFlag: function () {
+
+  this.game.physics.arcade.collide( this.player, this.flags, this.FlagPlay, null, this);
+
+},
+
 
 
 
@@ -588,6 +628,29 @@ ShipCollionPlayer: function () {
   console.log("Это шипы!");
 
   this.state.start('Gameover');
+
+},
+
+
+/*Обработка столкновения игрока и флага*/
+
+
+FlagPlay: function (player, flag) {
+
+  //flag.kill();
+
+
+  //flag.body.enableBody = false; 
+
+  /*Пример того как нужно зафиксировать тело и при коллизии его нельзя передвинуть
+  если убрать иммовебал то предмет можно двигать и он не будет улетать*/
+  flag.body.immovable = true;
+  flag.body.velocity.x = 0;
+  flag.body.velocity.y = 0;
+
+
+  console.log("Вы сохоанились");
+
 
 },
 
@@ -1128,6 +1191,8 @@ handleKeyboardInput: function () {
     //this.checkLock();
     //this.cancelLock();
 
+    this.addFlag();
+
 
 
   },
@@ -1135,7 +1200,10 @@ handleKeyboardInput: function () {
   /*добовляем динамические методы*/
 
   update: function() {
-   this.preRender();
+
+
+
+  this.preRender();
   // игра не на пайхе при загрузке
   this.game.paused = false;
 
@@ -1165,6 +1233,10 @@ handleKeyboardInput: function () {
   this.setupInvader();
   //коллизия игрока с облаком
   this.collisionPlauerCpoud();
+
+  this.collisianLivelFlag();
+
+  this.collisianPlauerFlag();
 
 
   //this.physics.arcade.moveToPointer(this.evels, 60, this.player, 500);
