@@ -5,7 +5,7 @@ GameStates.Game = {
 
 
 
-/*КОНСТАНТЫ*/
+  /*КОНСТАНТЫ*/
 
 
   /*метод добовляет мир в игру*/
@@ -16,7 +16,7 @@ GameStates.Game = {
     // взрывы
 
     this.explosions;
-  
+
     // Таймер
 
     this.hitTimer = 0;
@@ -50,21 +50,32 @@ GameStates.Game = {
 
 
     this.spaceKey;
-  
+
     this.bullets;
 
     this.pausa;
+    this.lockedTo = null;
+    this.locked = false;
+    // облака
+   /* this.clouds = null;
 
 
-
-// врани
+   
     
+    this.wasLocked = false;
+    this.willJump = false;*/
+
+    this.jumpTimer = 0;
+
+
+    // врани
+
     this.bad_guys=[];
     this.NR_OF_BAD_GUYS=10;
 
 
 
-  
+
 
 /*ФИЗИКА*/
 
@@ -78,26 +89,26 @@ GameStates.Game = {
     this.physics.arcade.gravity.y = 200;
     
 
-/*ПАРАЛАКС ФОНА*/
+    /*ПАРАЛАКС ФОНА*/
 
      // добвляем небо в игру
-    this.sky = this.add.tileSprite(0, 0, this.game.width, this.game.height, 'sky');
-    this.sky.scale.setTo(2,2);
-    this.sky.autoScroll(-10, 0);
+     this.sky = this.add.tileSprite(0, 0, this.game.width, this.game.height, 'sky');
+     this.sky.scale.setTo(2,2);
+     this.sky.autoScroll(-10, 0);
 
 
     // фиксируем небо что бы сделать паралакс эффект
     this.sky.fixedToCamera = true;
 
 
-/*КАРТА*/
+    /*КАРТА*/
 
     // загружаем json
     this.map = this.add.tilemap('map');
     // добовляем спрайт
     this.map.addTilesetImage('tiles');
 
-   
+
 
     // инициализируем слой
     this.layer = this.map.createLayer('Tile Layer 1');
@@ -112,7 +123,7 @@ GameStates.Game = {
     // физика для карты (указываем коллизию для первого основного слоя)
     this.map.setCollisionByExclusion([0],true, 'Tile Layer 1');
 
-/*ШИПЫ*/
+    /*ШИПЫ*/
     
     // инициализируем
     this.ships = this.map.createLayer('Tile Layer 2');
@@ -143,12 +154,12 @@ GameStates.Game = {
     //this.map.setCollisionBetween(1, 12);
 
 
-/*КЛАВИАТУРА*/
+    /*КЛАВИАТУРА*/
 
 
      // Добавляем ввод с клавиатуры
-    this.cursors = this.input.keyboard.createCursorKeys();
-    this.fireButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+     this.cursors = this.input.keyboard.createCursorKeys();
+     this.fireButton = this.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
 
     // добовялем кнопку
@@ -163,11 +174,11 @@ GameStates.Game = {
 
 
 
-/*ИГРОК*/
+  /*ИГРОК*/
 
   addPlayer: function () {
 
-/*ДОБОВЛЯЕМ ИГРОКА*/
+    /*ДОБОВЛЯЕМ ИГРОКА*/
 
     // добовляем игрока
     this.player = this.add.sprite(32, this.world.height - 350, 'dude');
@@ -175,9 +186,9 @@ GameStates.Game = {
     this.player.anchor.setTo(0.5, 0);
 
 
-/*ФИЗИКА ИГРОКА*/
+    /*ФИЗИКА ИГРОКА*/
     //  добовляем играку физику (инициализируем ее)
-    this.physics.arcade.enable(this.player);
+    this.physics.arcade.enable(this.player, Phaser.Physics.Arcade);
 
     //  добовляем параметры для физики
     this.player.body.bounce.y = 0.2; // отскок от поверхности
@@ -186,7 +197,7 @@ GameStates.Game = {
     //this.player.body.setSize(20, 32, 5, 16); // добовляем карту для тела, по нему будут происходить столкновения
 
 
-/*АНИМАЦИЯ ИГРОКА*/
+    /*АНИМАЦИЯ ИГРОКА*/
 
     //  добовляем анимации (ходьба влева и вправо)
     //this.player.animations.add('left', [0, 1, 2, 3], 10, true); // название, номера слайдов, колчество кадров в
@@ -195,7 +206,7 @@ GameStates.Game = {
     this.player.animations.add('hit', [2, 4, 5], 20, true);
 
 
-/*ПУЛЯ*/
+    /*ПУЛЯ*/
 
     //  добовляем группу пули
     this.bullets = this.add.group();
@@ -216,16 +227,16 @@ GameStates.Game = {
     this.bullets.setAll('anchor.y', 1);
 
 
-/*СЧЕТЧИК ЗВЕЗДОЧИК*/
+    /*СЧЕТЧИК ЗВЕЗДОЧИК*/
 
-  this.scoreText = this.add.text(10,20, "Звездочки: 0", { fontSize: '32px', fill: '#fff' });
+    this.scoreText = this.add.text(10,20, "Звездочки: 0", { fontSize: '32px', fill: '#fff' });
 
   //фиксируем счетчик на одном месте
 
   this.scoreText.fixedToCamera = true;
 
 
-/*СЧЕТЧИК ЖЫЗНЕЙ*/
+  /*СЧЕТЧИК ЖЫЗНЕЙ*/
 
   //this.lives = this.add.text(600,20, "Жизни: 100", { fontSize: '32px', fill: '#fff' });
 
@@ -238,15 +249,15 @@ GameStates.Game = {
 
 /*ВРАГИ*/
 
-  addEvil: function () {
+addEvil: function () {
 
-    this.bad_guys = this.add.group();
+  this.bad_guys = this.add.group();
   // имее тело
-    this.bad_guys.enableBody = true;
+  this.bad_guys.enableBody = true;
   // добовляем им физику
-    this.physics.arcade.enable(this.bad_guys);
+  this.physics.arcade.enable(this.bad_guys);
 
-    for (var i=0;i<this.NR_OF_BAD_GUYS;i++){
+  for (var i=0;i<this.NR_OF_BAD_GUYS;i++){
     this.bad_guy= this.bad_guys.create(250+i*500, this.world.height - 300, 'badguy');//250+i*500
     
     this.bad_guy.body.bounce.y = 0.2; // отскок от поверхности 0.2*i+0.2;
@@ -254,10 +265,10 @@ GameStates.Game = {
     this.bad_guy.body.collideWorldBounds = true; // запрещаяе заходить за карту
 
       // анимация врагов
-    this.bad_guy.animations.add('left',[0,1],10,true);
-    this.bad_guy.animations.add('right',[2,3],10,true);
+      this.bad_guy.animations.add('left',[0,1],10,true);
+      this.bad_guy.animations.add('right',[2,3],10,true);
 
-  }
+    }
 
      //this.evel = this.add.group();
 
@@ -290,47 +301,78 @@ GameStates.Game = {
     this.evels.body.gravity.y = 100;     
     this.evels.body.bounce.y = 0.2 ;*/
 
-    /*ДОБОВЛЯЕМ ОБЛАКА*/
-
-          /*  this.clouds = this.add.physicsGroup();
-
-            this.cloud1 = new CloudPlatform(this.game, 300, 450, 'cloud-platform', this.clouds);
-
-            this.cloud1.addMotionPath([
-                { x: "+200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeIn" },
-                { x: "-200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeOut" },
-                { x: "-200", xSpeed: 2000, xEase: "Linear", y: "+200", ySpeed: 2000, yEase: "Sine.easeIn" },
-                { x: "+200", xSpeed: 2000, xEase: "Linear", y: "+200", ySpeed: 2000, yEase: "Sine.easeOut" }
-            ]);*/
 
 
-  },
+},
+
+/*ОБЛАКА*/
+
+addCloud: function () {
+
+  /*ДОБОВЛЯЕМ ОБЛАКА*/
+
+  this.clouds = this.add.physicsGroup();
+  this.cloud1 = new CloudPlatform(this.game, 600, 450, 'cloud-platform', this.clouds);
+  this.cloud2 = new CloudPlatform(this.game, 300, 450, 'cloud-platform', this.clouds);
+  this.cloud3 = new CloudPlatform(this.game, 1700, 200, 'cloud-platform', this.clouds);
+  this.cloud4 = new CloudPlatform(this.game, 2100, 400, 'cloud-platform', this.clouds);
+
+  /*this.cloud1.addMotionPath([
+      { x: "+200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeIn" },
+      { x: "-200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeOut" },
+      { x: "-200", xSpeed: 2000, xEase: "Linear", y: "+200", ySpeed: 2000, yEase: "Sine.easeIn" },
+      { x: "+200", xSpeed: 2000, xEase: "Linear", y: "+200", ySpeed: 2000, yEase: "Sine.easeOut" }
+      ]);*/
+
+    this.cloud1.addMotionPath([
+    { x: "+300", xSpeed: 2000, xEase: "Linear", y: "+0", ySpeed: 2000, yEase: "Sine.easeIn" },
+    { x: "-300", xSpeed: 2000, xEase: "Linear", y: "-0", ySpeed: 2000, yEase: "Sine.easeOut" }
+]);
+
+  this.cloud2.addMotionPath([
+    { x: "+0", xSpeed: 2000, xEase: "Linear", y: "+300", ySpeed: 2000, yEase: "Sine.easeIn" },
+    { x: "-0", xSpeed: 2000, xEase: "Linear", y: "-300", ySpeed: 2000, yEase: "Sine.easeOut" }
+]);
 
 
+    this.cloud3.addMotionPath([
+    { x: "+0", xSpeed: 2000, xEase: "Linear", y: "+300", ySpeed: 2000, yEase: "Sine.easeIn" },
+    { x: "-0", xSpeed: 2000, xEase: "Linear", y: "-300", ySpeed: 2000, yEase: "Sine.easeOut" }
+]);
+
+
+        this.cloud4.addMotionPath([
+    { x: "+0", xSpeed: 2000, xEase: "Linear", y: "+300", ySpeed: 2000, yEase: "Sine.easeIn" },
+    { x: "-0", xSpeed: 2000, xEase: "Linear", y: "-300", ySpeed: 2000, yEase: "Sine.easeOut" }
+]);
+
+  this.clouds.callAll('start');
+
+},
 
 /*ЖИЗНИ*/
 
 addLive: function () {
 
-// создаем группу сердечик
+  // создаем группу сердечик
   this.lifes = this.add.group();
 
-// через цикл выводим три звездочки
+  // через цикл выводим три звездочки
   for (var i=0;i<3;i++){
 
-// выводим
-    this.lifes.create(16+i*32,50,'live');
-// фиксируем их на одном месте на экране
-    this.lifes.fixedToCamera = true;
+  // выводим
+  this.lifes.create(16+i*32,50,'live');
+  // фиксируем их на одном месте на экране
+  this.lifes.fixedToCamera = true;
 
-  }
+}
 
 },
 
 
 /*ЗВЕЗДОЧКИ*/
 
-  addStars: function () {
+addStars: function () {
 
 
     // добовляем звездочки
@@ -349,26 +391,26 @@ addLive: function () {
 
         // добовляем им случаную скорость отталкивания от поверхности
         star.body.bounce.y = 0.2 + Math.random() * 0.2;
-    };
+      };
 
-},
+    },
 
 
-/*ВЗРЫВЫ*/
+    /*ВЗРЫВЫ*/
 
-addExplosions: function() {
-  
-  //  делаем группу
+  addExplosions: function() {
+
+    //  делаем группу
     this.explosions = this.add.group();
 
-  // добовляем в нее изображения
+    // добовляем в нее изображения
     this.explosions.createMultiple(30, 'kaboom');
 
 
     console.log()
-  // добовляем события для очистки огня и анимации взрыва
-   //this.explosions.forEach(this.setupInvader, this);
-},
+    // добовляем события для очистки огня и анимации взрыва
+     //this.explosions.forEach(this.setupInvader, this);
+ },
 
 
 
@@ -377,7 +419,7 @@ addExplosions: function() {
 
  /*АПТЕЧКА*/
 
-addApt: function () {
+ addApt: function () {
 
 
     // добовляем 
@@ -385,7 +427,7 @@ addApt: function () {
     // добовляем массу тела
     this.aptec.enableBody = true;
 
-     var star = this.aptec.create(500, this.world.height - 264, 'apt');
+    var star = this.aptec.create(500, this.world.height - 264, 'apt');
 
     //  добовляем им вектор гравитации
     star.body.gravity.y = 300;
@@ -396,90 +438,102 @@ addApt: function () {
     var star2 = this.aptec.create(200, this.world.height - 264, 'apt');
 
      //  добовляем им вектор гравитации
-    star2.body.gravity.y = 300;
+     star2.body.gravity.y = 300;
 
     // добовляем им случаную скорость отталкивания от поверхности
     star2.body.bounce.y = 0.2;
 
-},
+  },
 
-/*СОБЫТИЯ КНОПОК*/
+  /*СОБЫТИЯ КНОПОК*/
 
-/*ENTER*/
+  /*ENTER*/
 
-togglePause: function()  {
-    
+  togglePause: function()  {
+
 
     // переключатель состояний паузы
-     this.game.paused = (this.game.paused) ? false : true;
+    this.game.paused = (this.game.paused) ? false : true;
     //this.game.paused = (this.game.paused) ? false : true/*this.pausa = this.add.text(100,100, "PAUSED", { fontSize: '32px', fill: '#fff' })*/;
     //console.log(this.game.paused);
 
     if (this.game.paused) {
-      
+
       console.log("Пауза");
 
     } else {
-      
+
      console.log("Не пауза");
 
       //this.pausa = this.add.text(100,100, "PAUSED", { fontSize: '32px', fill: '#fff' });
     };
 
-},
+  },
 
-/*СТОЛКНОВЕНИЯ*/
-
-
-/*проверяем столкновение игрока и стены*/
-collisianPlayLayer: function () {
-  this.game.physics.arcade.collide(this.player, this.layer);
-},
-
-/*столкновение игрока с шипами*/
-
-collisianPlayerShip: function () {
-
-  this.game.physics.arcade.collide(this.player, this.ships, this.ShipCollionPlayer, null, this);
-},
-
-collisianPlayerShip2: function () {
-
-  this.game.physics.arcade.collide(this.player, this.ships1, this.ShipCollionPlayer, null, this);
-},
+  /*СТОЛКНОВЕНИЯ*/
 
 
-/*столкновение игрока со звездочкой*/
+  /*проверяем столкновение игрока и стены*/
+  collisianPlayLayer: function () {
+
+    this.game.physics.arcade.collide(this.player, this.layer);
+
+  },
+
+  /*столкновение игрока с шипами*/
+
+  collisianPlayerShip: function () {
+
+    this.game.physics.arcade.collide(this.player, this.ships, this.ShipCollionPlayer, null, this);
+  },
+
+  collisianPlayerShip2: function () {
+
+    this.game.physics.arcade.collide(this.player, this.ships1, this.ShipCollionPlayer, null, this);
+  },
+
+
+  /*столкновение игрока со звездочкой*/
 collisionPlayStar: function () {
+
   this.game.physics.arcade.collide(this.player, this.stars, this.ballCollidesWithBlock, null, this); // не забывай добовлять последние два параметра для коррктного
   // парсинга чисел!!!
+
 },
 
 
 /*столкновение фаербола с уровнем*/
 
 collisianFaerbolStar: function () {
+
   this.game.physics.arcade.collide(this.bullets, this.stars, this.ballCollidesWithFaerbol, null, this);
+
 },
 
 /*столкновение фаербола со звездочкой*/
 
 collisianFaerbolLayer: function () {
+
   this.game.physics.arcade.collide(this.bullets, this.layer);
+
 },
 
 
 /*столкновение звездочки и карты*/
 
 collisianStarLivel: function () {
+
   this.game.physics.arcade.collide(this.stars, this.layer);
+
 },
 
 
 
 /*столкновение аптечки и карты*/
 collisianAptLivel: function () {
+
   this.game.physics.arcade.collide(this.aptec, this.layer, this.AptCollisLivel);
+
 },
 
 
@@ -501,7 +555,9 @@ collisianEvilLivel: function () {
 /*событие врага и фаербола*/
 
 collisianEvilFaerbol: function () {
+
   this.game.physics.arcade.collide(this.bad_guys, this.bullets, this.EvilCollisFaerb, null, this);
+
 },
 
 /*столкновение игрока с врагом*/
@@ -509,6 +565,13 @@ collisianEvilFaerbol: function () {
 collisianEvilPlayer: function () {
 
   this.game.physics.arcade.collide( this.player, this.bad_guys, this.hit, null, this);
+
+},
+
+collisionPlauerCpoud: function () {
+
+  this.game.physics.arcade.collide( this.player, this.clouds, this.customSep, null, this);
+
 },
 
 
@@ -524,7 +587,94 @@ ShipCollionPlayer: function () {
 
   console.log("Это шипы!");
 
-   this.state.start('Gameover');
+  this.state.start('Gameover');
+
+},
+
+/*Обработчик события столкновение облака и игрока*/
+customSep: function (player, platform) {
+
+            if (!this.locked && player.body.velocity.y > 0)
+            {
+                this.locked = true;
+                this.lockedTo = platform;
+                platform.playerLocked = true;
+
+                player.body.velocity.y = 0;
+            }
+
+        },
+
+/*применяем блокировку прыжка*/
+
+checkLock: function () {
+
+            this.player.body.velocity.y = 0;
+
+            //  If the player has walked off either side of the platform then they're no longer locked to it
+            if (this.player.body)
+            {
+                this.cancelLock();
+            }
+
+        },
+/*отменяем блокировку прыжка*/
+
+cancelLock: function () {
+
+    this.wasLocked = true;
+    this.locked = false;
+
+
+},
+
+preRender: function () {
+
+    if (this.game.paused)
+    {
+        //  Because preRender still runs even if your game pauses!
+        return;
+    }
+
+    if (this.locked || this.wasLocked)
+    {
+
+        
+        this.player.x += this.lockedTo.deltaX; // определяет значение по х в точке соприкосновнеие ()
+
+
+
+        this.player.y = this.lockedTo.y - 48;
+
+        if (this.player.body.velocity.x !== 0)
+        {
+            this.player.body.velocity.y = 0;
+        }
+    }
+
+    if (this.willJump)
+    {
+        this.willJump = false;
+
+        if (this.lockedTo && this.lockedTo.deltaY < 0 && this.wasLocked)
+        {
+            //  If the platform is moving up we add its velocity to the players jump
+            this.player.body.velocity.y = -300 + (this.lockedTo.deltaY * 10);
+        }
+        else
+        {
+            this.player.body.velocity.y = -300;
+        }
+
+        this.jumpTimer = this.time.time + 750;
+    }
+
+    if (this.wasLocked)
+    {
+        this.wasLocked = false;
+        this.lockedTo.playerLocked = false;
+        //this.lockedTo = null; //(нужно убрать что бы начал работать скрипт)
+    }
 
 },
 
@@ -548,8 +698,8 @@ hit: function(player, bad_guy) {
 
 
 if (this.hitTimer<=0){
-  
-    this.lifes.getFirstAlive().kill();
+
+  this.lifes.getFirstAlive().kill();
 
 
     //player.body.velocity.y = -150;
@@ -562,7 +712,7 @@ if (this.hitTimer<=0){
     else {
 
       this.player.body.velocity.x = 200;
-      console.log(111);
+
 
 
     }
@@ -581,13 +731,13 @@ if (this.hitTimer<=0){
       //game.paused=true;
       this.player.body.angularAcceleration = 360;
     }
-      else
+    else
       this.hitTimer=50;
 
 
-      this.player.kill();
+    this.player.kill();
 
-/*Создаем взрыв*/
+    /*Создаем взрыв*/
 //this.explosion = this.explosions.getFirstExists(false);
 
 this.explosion = this.explosions.getFirstExists(false);// получаем из множества объектов один (false - находит первый не 
@@ -598,7 +748,7 @@ this.explosion.play('kaboom', 30, false, true);
 //this.explosion.animations.add('kaboom');
 
   //анимация взрыва
-this.explosion.animations.add('kaboomanim',[1,2,3,4,5,6,7,8,10,11],10,true)
+  this.explosion.animations.add('kaboomanim',[1,2,3,4,5,6,7,8,10,11],10,true)
 //проиграет аницацию
 
 this.explosion.animations.play('kaboomanim');
@@ -613,37 +763,30 @@ this.explosion.lifespan = 500;
 //this.game.time.events.loop(1500, this.state.start('Gameover'), this);
 
 
-      this.state.start('Gameover');
+this.state.start('Gameover');
 
-    }
+}
 
-  } 
+} 
 
 },
 
 
 
-/*function setupInvader (invader) {
 
-    invader.anchor.x = 0.5;
-    invader.anchor.y = 0.5;
-    invader.animations.add('kaboom');
-
-}*/
-
-setupInvader: function  (invader) {
+  setupInvader: function  (invader) {
 
     //this.invader.anchor.x = 0.5;
     //invader.anchor.y = 0.5;
     //invader.animations.add('kaboom');
 
-},
+  },
 
 
 
-/*обработчки сотытия столкновения фаербола и врага*/
+  /*обработчки сотытия столкновения фаербола и врага*/
 
-EvilCollisFaerb: function(bad_guy, a) {
+  EvilCollisFaerb: function(bad_guy, a) {
 //this.bad_guy.exists = true;
 
  //this.player.anchor.setTo(0.5, 0);
@@ -663,7 +806,7 @@ this.explosion.play('kaboom', 30, false, true);
 //this.explosion.animations.add('kaboom');
 
   //анимация взрыва
-this.explosion.animations.add('kaboomanim',[1,2,3,4,5,6,7,8,10,11],10,true)
+  this.explosion.animations.add('kaboomanim',[1,2,3,4,5,6,7,8,10,11],10,true)
 //проиграет аницацию
 
 this.explosion.animations.play('kaboomanim');
@@ -706,7 +849,9 @@ AptCollisLivel: function (aptec, layer) {
 
 /*обработчик события столкновения фаербола со звездочкой*/
 ballCollidesWithFaerbol: function (a, stars) {
-    stars.kill();
+
+  stars.kill();
+
 },
 
 
@@ -720,96 +865,41 @@ AptCollisPlauer: function (player, aptec) {
 
   aptec.kill();
 
-// удаляет первый элимент
-  //this.lifes.getFirstAlive().kill();
-
-// добовляем элимент в указанные коориднаты
- // this.lifes.create(16,50,'live');
-
   if (this.lifes.countLiving() == 2){
-  this.lifes.create(16,50,'live');
- } else if (this.lifes.countLiving() == 1) {
-  this.lifes.create(49,50,'live');
- } else if (this.lifes.countLiving() >= 3){ // услоивие при которое если у нас больше звездочек чем три то значение остаеться равно трем
-  this.lifes.countLiving() == 3;
- }
 
-//console.log(this.lifes);
+      this.lifes.create(16,50,'live');
 
-  //console.log(this.lifes.countLiving().kill());
+  } else if (this.lifes.countLiving() == 1) {
+
+      this.lifes.create(49,50,'live');
+
+  } else if (this.lifes.countLiving() >= 3){ // услоивие при которое если у нас больше звездочек чем три то значение остаеться равно трем
+    
+      this.lifes.countLiving() == 3;
+  }
 
 
 
-//this.lifes += 1;
+  },
 
-/* if (this.lifes.countLiving() <= 3){
-  this.lifes.create(16,50,'live');
- } else if ( this.lifes.countLiving() <= 2) {
-  this.lifes.create(32,50,'live');
- } else {
+  /*обработчик события столкновения игрока и звездочки*/
 
- }*/
-
+  ballCollidesWithBlock: function(a, stars) {
+    stars.kill();
   
+    this.star += 10;
 
-  //this.lifes.getFirstAlive().kill();
+    this.scoreText.text = "Звездочки: "+ this.star;
 
-  //console.log(this.lifes.countLiving());
+    /*Конец игры*/
 
-  /*if (this.lifes.countLiving() == 3){
+    if (this.star == 200)  {
 
-    this.lifes.countLiving() ++;
+      this.state.start('win');
 
-    this.lifes.create(16,50,'live');*/
-
-  /*}, else if (this.lifes.countLiving() == 2) {
-
-    this.lifes.create(16,50,'live');
-
-  }, else if (this.lifes.countLiving() == 1) {
-
-    this.lifes.create(16,50,'live');
-
-  }, else {
-    consol.log("не добавит");
-  },*/
-
-  //if (this.lifes.countLiving()==0){
+    };
 
 },
-
-/*обработчик события столкновения игрока и звездочки*/
-
-ballCollidesWithBlock: function(a, stars) {
-  stars.kill();
-  //star +=1;
-  this.star += 10;
-
-
-
-  //console.log(typeof this.star);
-
-  //console.log(this.star);
-  
-
-  this.scoreText.text = "Звездочки: "+ this.star;
-
-/*Конец игры*/
-
-/*  if (this.star == 20)  {
-
-    this.state.start('Gameover');
-
-  };*/
-
-      if (this.star == 200)  {
-
-        this.state.start('win');
-     };
-},
-
-
-
 
 
 
@@ -823,55 +913,34 @@ wotchXP: function () {
 },
 
 
-/*проверка проиграша игрока*/
-/*ballCollidesWithGround: function() {
-  if (this.ball.y >= 470) {
-    this.playerLives -= 1;
-    this.resetBall();
-  }*/
-
-  /*
-   Обновляем отображение жизней игрока
-   */
-/*  this.livesDisplay.setText("Lives: " + this.playerLives);
-  
-  if (this.playerLives === 0) {
-    // если уровень жизни равень нулю то игра перейдет в состояние
-    // конец игры
-    this.state.start("GameOver");
-  }
-  
-},*/
-
 
 /*ВЫСТРЕЛ ПУЛИ, ОБРАБОТКА ОГНЯ ИЗ ПУШКИ*/
 
 
 
- fireBullet: function () {
+fireBullet: function () {
 
 
-
-    if (this.time.now > this.bulletTime) // если внутренней время больше (начального времени пули) то
-    {
-        //  берем одну пулю из большого количества пуль
-        this.bullet = this.bullets.getFirstExists(false);// получаем из множества объектов один (false - находит первый не 
-            // существующий элимент)
+  if (this.time.now > this.bulletTime) // если внутренней время больше (начального времени пули) то
+  {
+      //  берем одну пулю из большого количества пуль
+      this.bullet = this.bullets.getFirstExists(false);// получаем из множества объектов один (false - находит первый не 
+          // существующий элимент)
 
 
 /*ПОЛУЧАЕМ ОДИН ПАТРОН*/
 
 
-        if (this.bullet) {
+  if (this.bullet) {
 
             this.bullet.exists = true;  // come to existance !
             this.bullet.lifespan = 400; // время через которое объект быдет удален
 
-/*УСЛОВИЕ*/
+            /*УСЛОВИЕ*/
 
             /*ЛЕВО*/
 
-             if (this.player.scale.x == -1) {
+            if (this.player.scale.x == -1) {
 
 
                 // перемещаем пулю отностильно координат игрока 
@@ -883,9 +952,9 @@ wotchXP: function () {
                 // доблвядем к времени пули время игры
                 this.bulletTime = this.time.now + 200; // тут мы определяем с каким промежудком времени будет отправлена пуля
 
-            } else  {
+              } else  {
 
-            /*ПРАВО*/
+                /*ПРАВО*/
 
                    //  то стреляем
                 // перемещаем пулю отностильно координат игрока 
@@ -897,14 +966,14 @@ wotchXP: function () {
                 // доблвядем к времени пули время игры
                 this.bulletTime = this.time.now + 200; // тут мы определяем с каким промежудком времени будет отправлена пуля
 
+              }
+
+
+
             }
+          }
 
-
-
-        }
-    }
-
-  },
+        },
 
 
 
@@ -919,25 +988,29 @@ handleKeyboardInput: function () {
 
   if (this.hitTimer<=0){
 
-    this.player.body.velocity.x = 0;
-        // добовляем управление
+   
 
-    /*ЛЕВО*/
-    if (this.cursors.left.isDown)
-    { 
-        
-        this.player.scale.x = -1;
+       var standing = this.player.body.blocked.down || this.player.body.touching.down || this.locked;
 
-        this.player.animations.play('go');
+       this.player.body.velocity.x = 0;
+              // добовляем управление
+
+        /*ЛЕВО*/
+        if (this.cursors.left.isDown)
+        { 
+
+          this.player.scale.x = -1;
+
+          this.player.animations.play('go');
 
         //  изменяем крость тела игрока
         this.player.body.velocity.x = -150;
 
-    }
+      }
 
-    /*ПРАВО*/
+      /*ПРАВО*/
 
-    else if (this.cursors.right.isDown){
+      else if (this.cursors.right.isDown){
 
         this.player.scale.x = 1;
 
@@ -947,61 +1020,86 @@ handleKeyboardInput: function () {
         this.player.body.velocity.x = 150;
         //this.player.animations.play('right');
 
-    
 
 
-    }
 
-    else {
+      }
 
-/*В ПОКОЕ*/
+      else {
+
+        /*В ПОКОЕ*/
 
         this.player.animations.stop();
 
         this.player.loadTexture('dude', 5);
 
-  
-    }
 
-         }
+      }
+
+    }
 
     else 
 
-      this.hitTimer--;  
+      this.hitTimer--;
 
 
 
 
-/*ПРЫЖОК*/
+
+
+
+
+    /*ПРЫЖОК*/
 //this.cursors.up.isDown && this.player.body.touching.down
     //  разрешае игроку прыгать если он находиться на змеле this.cursors.up.isDown && this.player.body.onFloor()
-    if (this.cursors.up.isDown && this.player.body.onFloor()) // если нажата кнопка вверх и тело игрока касаеться низа
-    {
-      //console.log(this.player.body.touching.down);
-        this.player.body.velocity.y = -310;
+    // if (this.cursors.up.isDown && this.player.body.onFloor()) // если нажата кнопка вверх и тело игрока касаеться низа
+    // {
+    //   //console.log(this.player.body.touching.down);
+    //   this.player.body.velocity.y = -310;
 
-    };
+    // };
 
 
-/*ОГОНЬ*/
+    /*ОГОНЬ*/
 
 
     if (this.fireButton.isDown ){
-         
-        this.fireBullet();
-            
+
+      this.fireBullet();
+
     };
 
-      
-  
 
-},
+      /*ПРЫЖОК*/
+            
+            if (this.cursors.up.isDown && standing)
+            {
+                if (this.locked)
+                {
+                    this.cancelLock();
+                }
+
+                // прыжок
+                this.willJump = true;
+            }
+
+
+            // условие при которомо если прыгать вверх на платформе то ты не упадешь с нее
+            if (this.locked)
+            {
+                this.checkLock();
+            }
+
+
+
+
+  },
 
 
 
 
 
-/*добавляем статичные методы*/
+  /*добавляем статичные методы*/
 
   create: function() {
 
@@ -1014,7 +1112,7 @@ handleKeyboardInput: function () {
     
     this.addApt();
 
-         /*Камера*/
+    /*Камера*/
 
     // добовляем камеру которая следит за игроком
     this.camera.follow(this.player);
@@ -1025,20 +1123,28 @@ handleKeyboardInput: function () {
 
     this.addExplosions();
 
+    // облака
+    this.addCloud();
+    //this.checkLock();
+    //this.cancelLock();
+
+
 
   },
 
-/*добовляем динамические методы*/
-  update: function() {
-    // игра не на пайхе при загрузке
-    this.game.paused = false;
+  /*добовляем динамические методы*/
 
-// проверка количество жизней
-console.log(this.lifes.countLiving());
+  update: function() {
+   this.preRender();
+  // игра не на пайхе при загрузке
+  this.game.paused = false;
+
+  // проверка количество жизней
+  //console.log(this.lifes.countLiving());
 
   this.collisianEvilPlayer();
   this.collisianPlayLayer();
- //столкновение с шипами
+  //столкновение с шипами
 
   this.collisianPlayerShip();
   this.collisianPlayerShip2();
@@ -1057,10 +1163,8 @@ console.log(this.lifes.countLiving());
 
   //очищаем взрыв
   this.setupInvader();
-
-
-
- 
+  //коллизия игрока с облаком
+  this.collisionPlauerCpoud();
 
 
   //this.physics.arcade.moveToPointer(this.evels, 60, this.player, 500);
@@ -1071,11 +1175,9 @@ console.log(this.lifes.countLiving());
   //this.player.rotation = this.physics.arcade.angleBetween(this.player, this.evels);
 
 
-
-
   /*ВРАГИ ПРИСЛЕЛУЮТ*/
 
-    for (var i=0; i < this.bad_guys.countLiving(); i++){
+  for (var i=0; i < this.bad_guys.countLiving(); i++){
 
     // получаем одного врага из нескольких
     this.bad_guy=this.bad_guys.getAt(i);
@@ -1088,12 +1190,12 @@ console.log(this.lifes.countLiving());
     { 
       this.bad_guy.body.velocity.x=-this.speed;
       this.bad_guy.animations.play('left');
-    
+
     } else  if (this.player.body.x-1 > this.bad_guy.body.x) {
 
       this.bad_guy.body.velocity.x=this.speed;
       this.bad_guy.animations.play('right');
-    
+
     } else if (this.bad_guy.body.onFloor()){ 
       //this.cursors.up.isDown && this.player.body.onFloor()
       //console.log(this.bad_guy.body.touching.down);
@@ -1107,9 +1209,7 @@ console.log(this.lifes.countLiving());
 
 
 
-
 },
-
 
 
 
@@ -1117,8 +1217,8 @@ console.log(this.lifes.countLiving());
 
 /*Дебагер игры*/
 
-  render: function () {
-    
+render: function () {
+
     //console.log("Это дебагер!");
     //this.game.debug.body(this.player);
     //this.game.debug.body(this.evels);
@@ -1128,17 +1228,26 @@ console.log(this.lifes.countLiving());
     /*выводим текст и нужные переменные через дебагер*/
 //    this.game.debug.text("Тут можно  выводить любое сообщение и нужные глобальные переменные", 32, 32, 'rgb(0,255,0)');
 
-    /*дебагер камеры*/
+/*дебагер камеры*/
  //   this.game.debug.cameraInfo(this.game.camera, 32, 64);
 
-    /*дебагер спрайта- выдают инфу по координатам*/
+ /*дебагер спрайта- выдают инфу по координатам*/
    // this.game.debug.spriteCoords(this.player, 32, 150);
 
-  },
+ },
+
+
+
+};
+
+
+
+/*НОВЫЕ МЕТОДЫ ДЛЯ ДВИЖКА (ПЛАГИНЫ)*/
 
 
  /*КОНСТРУКТОР ОБЛАКОВ*/
-  CloudPlatform: function (game, x, y, key, group) {
+
+    CloudPlatform = function (game, x, y, key, group) {
 
         if (typeof group === 'undefined') { group = game.world; }
 
@@ -1157,8 +1266,42 @@ console.log(this.lifes.countLiving());
 
         group.add(this);
 
-    },
+    };
 
+    CloudPlatform.prototype = Object.create(Phaser.Sprite.prototype);
+    CloudPlatform.prototype.constructor = CloudPlatform;
 
+    CloudPlatform.prototype.addMotionPath = function (motionPath) {
 
-};
+        this.tweenX = this.game.add.tween(this.body);
+        this.tweenY = this.game.add.tween(this.body);
+
+        //  motionPath is an array containing objects with this structure
+        //  [
+        //   { x: "+200", xSpeed: 2000, xEase: "Linear", y: "-200", ySpeed: 2000, yEase: "Sine.easeIn" }
+        //  ]
+
+        for (var i = 0; i < motionPath.length; i++)
+        {
+            this.tweenX.to( { x: motionPath[i].x }, motionPath[i].xSpeed, motionPath[i].xEase);
+            this.tweenY.to( { y: motionPath[i].y }, motionPath[i].ySpeed, motionPath[i].yEase);
+        }
+
+        this.tweenX.loop();
+        this.tweenY.loop();
+
+    };
+
+    CloudPlatform.prototype.start = function () {
+
+        this.tweenX.start();
+        this.tweenY.start();
+
+    };
+
+    CloudPlatform.prototype.stop = function () {
+
+        this.tweenX.stop();
+        this.tweenY.stop();
+
+    };

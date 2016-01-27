@@ -11,7 +11,7 @@ GameStates.NaveGame = {
     //text.fill = '#ec008c';
 
     this.add.sprite(0, 0, 'nev');
-   	this.add.text(10, 550, 'NEW GAME...', { fontSize: '62px', fill: '#fff' });
+   	this.add.text(10, 550, 'NEW GAME...', { fontSize: '32px', fill: '#fff' });
 
     
     // Добавляем ввод с клавиатуры
