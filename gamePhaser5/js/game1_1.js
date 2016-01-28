@@ -1,7 +1,7 @@
 
 /*Состояние - Игра*/
 
-GameStates.Game = {
+GameStates.Gamec = {
 
 
 
@@ -185,7 +185,8 @@ GameStates.Game = {
     /*ДОБОВЛЯЕМ ИГРОКА*/
 
     // добовляем игрока
-    this.player = this.add.sprite(32, this.world.height - 350, 'dude');
+
+    this.player = this.add.sprite(580, 300, 'dude');
 
     this.player.anchor.setTo(0.5, 0);
 
@@ -631,21 +632,7 @@ ShipCollionPlayer: function () {
 
   console.log("Это шипы!");
 
-  if (this.сheckpoint !== true) {
-
-      console.log(this.сheckpoint);
-
-      console.log("вы умерли!");
-
-      this.state.start('Gameover');
-
-    }
-
-    else {
-
-      this.state.start('Gameoverl');
-
-    }
+  this.state.start('Gameoverl');
 
 },
 
@@ -864,39 +851,26 @@ this.explosion.lifespan = 500;
 //this.game.time.events.duration.toFixed(100), 32, 32;
 
 //this.game.time.events.loop(1500, this.state.start('Gameover'), this);
-/*    if (this.сheckpoint == true) {
-
-      console.log(this.сheckpoint);
-
-      console.log("вы умерли!");
-
-      this.state.start('Gameover');
-
-    }
-
-    else {
-
-      this.state.start('Gameover');
-
-    }*/
-
     if (this.сheckpoint !== true) {
 
       console.log(this.сheckpoint);
 
       console.log("вы умерли!");
 
-      this.state.start('Gameover');
+      this.state.start('Gameoverl');
 
     }
 
     else {
 
+
       this.state.start('Gameoverl');
 
+
+
     }
-  
-   
+
+        
 
 }
 

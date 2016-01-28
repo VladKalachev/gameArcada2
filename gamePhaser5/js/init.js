@@ -20,6 +20,10 @@ var game = new Phaser.Game(width, height, Phaser.CANVAS, "game");
   game.state.add('win', GameStates.LivelWin);
   game.state.add('Gameover', GameStates.GameOver);
   game.state.add('GameWin', GameStates.GameWin);
+  
+  // чекпоинт первого уровня
+  game.state.add('Gamec', GameStates.Gamec);
+  game.state.add('Gameoverl', GameStates.GameOver2);
 
 
 
