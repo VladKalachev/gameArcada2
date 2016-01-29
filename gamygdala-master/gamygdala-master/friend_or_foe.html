@@ -16,8 +16,11 @@
 
 <script type="text/javascript">
 
+/*ЭЕРАН*/
 var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
 
+
+/*РЕСУРСЫ*/
 function preload() {
 
     game.load.image('sky', 'assets/sky.png');
@@ -33,6 +36,8 @@ function preload() {
 	//This line is needed for the Gamygdala.Expression plugin, if you make your own emotion expressions and effects, this is not needed.
 	game.load.spritesheet('emotions', 'assets/emotions.png', 256, 256);
 }
+
+/*ПЕРЕМЕННЫЕ*/
 
 var player;
 var bad_guys=[];
@@ -53,6 +58,8 @@ var NR_OF_BAD_GUYS=6;
 //For the Gamygdala based emotions: define the main appraisal engine reference
 var emotionEngine;
 
+
+/*СТАТИКА*/
 function create() {
 
     //  We're going to be using physics, so enable the Arcade Physics system
@@ -229,6 +236,9 @@ function create() {
 	//Also the Gamygdala.createAgent(..) and Gamygdala.createGoalForAgent(..) work with literal refs, so an alternative is to have a sequence of these be loaded from a txt file and executed.
 }
 
+
+/*ДИНАМИКА*/
+
 function update() {
 
     //  Collide the player and the stars with the platforms
@@ -241,7 +251,8 @@ function update() {
 	game.physics.arcade.collide(player, bad_guys, hit, null, this);
    
     
-	
+/*УПРАВЛЕНИЕ*/
+
 	if (hitTimer<=0){
 		 //  Reset the players velocity (movement)
 		player.body.velocity.x = 0;
@@ -278,7 +289,8 @@ function update() {
 		}
 	} else
 		hitTimer--;
-	//control the bad guys
+
+/*МЕХАНИКА ПРИСЛЕДОВАНИЯ ВРАГАМИы*/
 	for (var i=0;i<bad_guys.countLiving();i++){
 		var bad_guy=bad_guys.getAt(i);
 		var speed=20+5*i;
@@ -299,6 +311,8 @@ function update() {
 	}
 		
 }
+
+/*Столкночение игрока и звездочки*/
 
 function collectStar (player, star) {
     
@@ -330,6 +344,8 @@ function collectStar (player, star) {
 		game.add.text(300, 300, 'YOU WIN :-)', { fontSize: '32px', fill: '#000' });
 	}
 }
+
+/*Столкновение игрока и врага*/
 function hit (player, bad_guy) {
     
     

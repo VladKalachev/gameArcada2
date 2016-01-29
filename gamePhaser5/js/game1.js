@@ -1327,10 +1327,11 @@ handleKeyboardInput: function () {
     // устанавливаем их скороть перемищения
     this.speed=50+10*i;
     
-
+//if (this.player.body.y<this.bad_guy.body.y && this.player.body.y+20>this.bad_guy.body.y){ // добавить условие для приследования только при видимостви врага игрока
     // основное условие
     if (this.player.body.x+1 < this.bad_guy.body.x)
     { 
+
       this.bad_guy.body.velocity.x=-this.speed;
       this.bad_guy.animations.play('left');
 
@@ -1347,7 +1348,13 @@ handleKeyboardInput: function () {
       this.bad_guy.body.velocity.y= - this.speed*3;
       this.bad_guy.animations.stop();
 
-    } 
+    }
+/*} else { // добавить условие для приследования только при видимостви врага игрока
+  this.bad_guy.body.velocity.x=0;
+}*/
+    
+      
+
   }
 
 
